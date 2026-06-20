@@ -1,0 +1,274 @@
+.sign-gif-test-page {
+  min-height: 100vh;
+  background: #000000;
+  color: #ffffff;
+  padding: 40px 20px;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.sign-gif-test-container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.sign-gif-test-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: #FFD700;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.sign-gif-test-subtitle {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.6);
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.sign-gif-test-input-section {
+  margin-bottom: 30px;
+}
+
+.sign-gif-test-input {
+  width: 100%;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 215, 0, 0.3);
+  border-radius: 12px;
+  color: #ffffff;
+  font-size: 16px;
+  margin-bottom: 16px;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+.sign-gif-test-input:focus {
+  border-color: #FFD700;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.sign-gif-test-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.sign-gif-test-input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.sign-gif-test-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.sign-gif-test-button {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.sign-gif-test-button-primary {
+  background: #FFD700;
+  color: #000000;
+}
+
+.sign-gif-test-button-primary:hover:not(:disabled) {
+  background: #FFC700;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.4);
+}
+
+.sign-gif-test-button-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.sign-gif-test-button-secondary {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.sign-gif-test-button-secondary:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.sign-gif-test-error {
+  background: rgba(244, 67, 54, 0.15);
+  border: 2px solid rgba(244, 67, 54, 0.5);
+  color: #f44336;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.sign-gif-test-error-title {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  color: #ff6b6b;
+}
+
+.sign-gif-test-error-message {
+  font-size: 14px;
+  margin-bottom: 16px;
+  line-height: 1.6;
+}
+
+.sign-gif-test-error-steps {
+  background: rgba(0, 0, 0, 0.3);
+  padding: 16px;
+  border-radius: 8px;
+  margin-top: 12px;
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+.sign-gif-test-error-steps strong {
+  color: #FFD700;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.sign-gif-test-error-steps ol {
+  margin: 8px 0 0 20px;
+  padding: 0;
+}
+
+.sign-gif-test-error-steps li {
+  margin-bottom: 8px;
+}
+
+.sign-gif-test-error-steps code {
+  background: rgba(0, 0, 0, 0.5);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
+  color: #FFD700;
+  font-size: 12px;
+}
+
+.sign-gif-test-error-steps a {
+  color: #FFD700;
+  text-decoration: underline;
+}
+
+.sign-gif-test-error-steps a:hover {
+  color: #FFC700;
+}
+
+.sign-gif-test-display {
+  background: rgba(0, 0, 0, 0.6);
+  border: 2px solid rgba(255, 215, 0, 0.3);
+  border-radius: 16px;
+  padding: 30px;
+  margin-bottom: 30px;
+  min-height: 400px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.sign-gif-test-current-word {
+  font-size: 24px;
+  font-weight: 600;
+  color: #FFD700;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.sign-gif-test-current-word strong {
+  font-size: 32px;
+  color: #ffffff;
+}
+
+.sign-gif-test-gif-container {
+  width: 100%;
+  max-width: 500px;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.sign-gif-test-gif {
+  width: 100%;
+  height: auto;
+  max-height: 400px;
+  object-fit: contain;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(255, 215, 0, 0.3);
+}
+
+.sign-gif-test-progress {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.6);
+  text-align: center;
+}
+
+.sign-gif-test-placeholder {
+  text-align: center;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.sign-gif-test-loading {
+  font-size: 18px;
+  color: #FFD700;
+}
+
+.sign-gif-test-placeholder-text {
+  font-size: 16px;
+}
+
+.sign-gif-test-word-list {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.sign-gif-test-word-list h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #FFD700;
+  margin-bottom: 12px;
+}
+
+.sign-gif-test-words {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.sign-gif-test-word-badge {
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.7);
+  transition: all 0.3s ease;
+}
+
+.sign-gif-test-word-badge.active {
+  background: rgba(255, 215, 0, 0.3);
+  border-color: #FFD700;
+  color: #FFD700;
+  font-weight: 600;
+  transform: scale(1.05);
+}
+
+.sign-gif-test-word-badge.missing {
+  opacity: 0.5;
+  border-color: rgba(244, 67, 54, 0.5);
+  color: rgba(244, 67, 54, 0.7);
+}
+

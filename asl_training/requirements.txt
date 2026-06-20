@@ -1,0 +1,19 @@
+# ASL Training Pipeline — Python dependencies
+# Install with: pip install -r asl_training/requirements.txt
+
+# Video downloading
+yt-dlp>=2024.1.0
+
+# Computer vision & landmark extraction
+opencv-python>=4.8.0
+mediapipe>=0.10.9
+
+# ML / training
+tensorflow>=2.13.0
+numpy>=1.24.0
+scikit-learn>=1.3.0
+
+# Already in backend/requirements.txt (listed here for the training venv)
+fastapi
+uvicorn
+pydantic

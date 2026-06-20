@@ -1,0 +1,555 @@
+// [ASL-TRANSFORMER-PATCH-v1]
+import React, { useState, useRef, useEffect } from "react";
+import DeafVideoPanel from "../components/deaf/DeafVideoPanel";
+import DeafFeaturePanel from "../components/deaf/DeafFeaturePanel";
+import ModeToggle from "../components/deaf/ModeToggle";
+import GestureRecognitionToggle from "../components/deaf/GestureRecognitionToggle";
+import DebugTools from "../components/deaf/DebugTools";
+import { PhoneOffIcon } from "../components/Icons";
+import { useGestureRecognition } from "../hooks/useGestureRecognition";
+
+const DeafCommunication = ({
+  roomId,
+  callState,
+  isMuted: externalIsMuted,
+  isCameraOn: externalIsCameraOn,
+  onToggleMute,
+  onToggleCamera,
+  onLeaveCall,
+  localVideoRef: externalLocalVideoRef,
+  remoteParticipants = [],
+  statusMessage,
+  error,
+  remoteTranscription = "",
+  transcriptionMessages = [],
+  onClearTranscription,
+  localParticipantName = "Participant", // NEW: Receive from parent
+}) => {
+  // Use the passed name directly (no need for state since it comes from props)
+  const participantName = localParticipantName;
+  const [isMuted, setIsMuted] = useState(externalIsMuted || false);
+  const [isCameraOn, setIsCameraOn] = useState(externalIsCameraOn || true);
+  const [mode, setMode] = useState("alphabet"); // 'alphabet' or 'word'
+  const [gestureRecognitionEnabled, setGestureRecognitionEnabled] = useState(true);
+  const [showLandmarks, setShowLandmarks] = useState(true);
+  
+  // Use external ref if provided, otherwise create internal one
+  const internalLocalVideoRef = useRef(null);
+  const localVideoRef = externalLocalVideoRef || internalLocalVideoRef;
+  const landmarksCanvasRef = useRef(null);
+
+  // Gesture recognition hook - runs when enabled and uses existing video stream
+  const {
+    prediction: gesturePrediction,
+    predictionLabel: gestureLabel,
+    isPredicting: isGesturePredicting,
+    handDetected: gestureHandDetected,
+    error: gestureError,
+    wordPrediction,
+    wordConfidence,
+  } = useGestureRecognition({
+    videoRef: localVideoRef,
+    mode: mode,
+    enabled: gestureRecognitionEnabled && isCameraOn, // Only when camera is on
+    roomId: roomId,
+    participantName: participantName,
+    showLandmarks: showLandmarks,
+    canvasRef: landmarksCanvasRef,
+  });
+  
+  // Sync with external state
+  useEffect(() => {
+    if (externalIsMuted !== undefined) {
+      setIsMuted(externalIsMuted);
+    }
+  }, [externalIsMuted]);
+  
+  useEffect(() => {
+    if (externalIsCameraOn !== undefined) {
+      setIsCameraOn(externalIsCameraOn);
+    }
+  }, [externalIsCameraOn]);
+  
+  const handleMuteToggle = () => {
+    if (onToggleMute) {
+      onToggleMute();
+    } else {
+      setIsMuted(!isMuted);
+    }
+  };
+  
+  const handleCameraToggle = () => {
+    if (onToggleCamera) {
+      onToggleCamera();
+    } else {
+      setIsCameraOn(!isCameraOn);
+    }
+  };
+  const [activeNav, setActiveNav] = useState("communicate");
+  const navRef = useRef(null);
+  const indicatorRef = useRef(null);
+  const navItemsRef = useRef({});
+
+  // Update indicator position when active nav changes
+  useEffect(() => {
+    if (indicatorRef.current && navItemsRef.current[activeNav]) {
+      const activeItem = navItemsRef.current[activeNav];
+      const navContainer = navRef.current;
+
+      if (activeItem && navContainer) {
+        const navRect = navContainer.getBoundingClientRect();
+        const itemRect = activeItem.getBoundingClientRect();
+
+        indicatorRef.current.style.left = `${itemRect.left - navRect.left}px`;
+        indicatorRef.current.style.width = `${itemRect.width}px`;
+      }
+    }
+  }, [activeNav]);
+
+  const handleNavClick = (navId) => {
+    setActiveNav(navId);
+    if (navId === "home") {
+      window.location.href = "/";
+    }
+  };
+
+  const styles = {
+    container: {
+      height: "100vh",
+      maxHeight: "100vh",
+      backgroundColor: "#fcfcfd",
+      display: "flex",
+      flexDirection: "column",
+      overflow: "hidden",
+      fontFamily: "'Inter', sans-serif",
+      position: "relative",
+    },
+    header: {
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      padding: "16px 48px",
+      position: "relative",
+      zIndex: 100,
+      flexShrink: 0,
+      backgroundColor: "#ffffff",
+      borderBottom: "1px solid rgba(0, 0, 0, 0.05)",
+      gap: "20px",
+    },
+    headerLeft: {
+      display: "flex",
+      alignItems: "center",
+      gap: "24px",
+    },
+    logo: {
+      display: "flex",
+      alignItems: "center",
+      height: "40px",
+      backgroundColor: "transparent",
+    },
+    logoImage: {
+      height: "40px",
+      width: "auto",
+      objectFit: "contain",
+      display: "block",
+    },
+    nav: {
+      display: "flex",
+      gap: "8px",
+      alignItems: "center",
+      position: "relative",
+      background: "#ffffff",
+      padding: "4px",
+      borderRadius: "100px",
+      border: "1px solid rgba(0, 0, 0, 0.06)",
+      boxShadow: "0 2px 10px rgba(0,0,0,0.02)",
+    },
+    navIndicator: {
+      position: "absolute",
+      bottom: "4px",
+      height: "calc(100% - 8px)",
+      background: "#f3e8ff",
+      borderRadius: "100px",
+      transition: "all 0.4s cubic-bezier(0.22, 1, 0.36, 1)",
+      zIndex: 1,
+    },
+    navLink: {
+      color: "#4b5563",
+      textDecoration: "none",
+      fontSize: "13px",
+      fontWeight: 600,
+      transition: "all 0.3s ease",
+      cursor: "pointer",
+      padding: "8px 20px",
+      borderRadius: "100px",
+      position: "relative",
+      zIndex: 2,
+      fontFamily: "'Inter', sans-serif",
+      letterSpacing: "0.02em",
+    },
+    navLinkActive: {
+      color: "#8B2FF8",
+    },
+    contactButton: {
+      padding: "10px 24px",
+      background: "#ffffff",
+      color: "#8B2FF8",
+      border: "1px solid #8B2FF8",
+      borderRadius: "100px",
+      fontSize: "13px",
+      fontWeight: "700",
+      cursor: "pointer",
+      transition: "all 0.3s",
+      fontFamily: "'Inter', sans-serif",
+      display: "flex",
+      alignItems: "center",
+      gap: "8px",
+    },
+    mainContent: {
+      flex: 1,
+      display: "flex",
+      gap: "24px",
+      padding: "24px",
+      maxWidth: "1600px",
+      margin: "0 auto",
+      width: "100%",
+      minHeight: 0,
+      overflow: "hidden",
+      position: "relative",
+      zIndex: 10,
+    },
+    leftPanel: {
+      flex: "0.7",
+      display: "flex",
+      flexDirection: "column",
+      minHeight: 0,
+      gap: "20px",
+    },
+    videoWrapper: {
+      flex: 1,
+      minHeight: 0,
+      position: "relative",
+      background: "#ffffff",
+      borderRadius: "24px",
+      border: "1px solid rgba(0, 0, 0, 0.06)",
+      overflow: "hidden",
+      boxShadow: "0 10px 30px rgba(0,0,0,0.03)",
+    },
+    statusIndicator: {
+      position: "absolute",
+      bottom: "100px",
+      left: "50%",
+      transform: "translateX(-50%)",
+      display: "flex",
+      alignItems: "center",
+      gap: "10px",
+      backgroundColor: "#ffffff",
+      padding: "8px 20px",
+      borderRadius: "100px",
+      border: "1px solid rgba(0, 0, 0, 0.06)",
+      boxShadow: "0 4px 15px rgba(0,0,0,0.05)",
+      zIndex: 20,
+    },
+    statusDot: {
+      width: "8px",
+      height: "8px",
+      borderRadius: "50%",
+      backgroundColor: "#10b981",
+      boxShadow: "0 0 10px rgba(16, 185, 129, 0.3)",
+    },
+    statusText: {
+      color: "#374151",
+      fontSize: "13px",
+      fontWeight: "600",
+      letterSpacing: "0.02em",
+    },
+    modeToggleWrapper: {
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      padding: "12px 24px",
+      background: "#ffffff",
+      borderRadius: "100px",
+      border: "1px solid rgba(0, 0, 0, 0.05)",
+      boxShadow: "0 4px 15px rgba(0,0,0,0.03)",
+      position: "relative",
+      marginTop: "-80px", // Pull it up into the video area
+      margin: "0 auto 20px auto",
+      width: "fit-content",
+      zIndex: 10,
+    },
+    rightPanel: {
+      flex: "0.3",
+      display: "flex",
+      flexDirection: "column",
+      minHeight: 0,
+      gap: "20px",
+      minWidth: "380px",
+    },
+    footer: {
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      padding: "16px 48px",
+      backgroundColor: "#ffffff",
+      borderTop: "1px solid rgba(0, 0, 0, 0.05)",
+      flexShrink: 0,
+    },
+    footerSection: {
+      display: "flex",
+      alignItems: "center",
+      gap: "12px",
+    },
+    footerText: {
+      color: "#6b7280",
+      fontSize: "13px",
+      fontWeight: 500,
+    },
+    roomCodeBadge: {
+      background: "rgba(168, 85, 247, 0.1)",
+      color: "#A85CFF",
+      padding: "6px 14px",
+      borderRadius: "8px",
+      fontSize: "13px",
+      fontWeight: 700,
+      fontFamily: "'Bricolage Grotesque', sans-serif",
+      border: "1px solid rgba(168, 85, 247, 0.2)",
+      letterSpacing: "1px",
+    },
+    callEndButton: {
+      position: "absolute",
+      top: "16px",
+      right: "16px",
+      backgroundColor: "#ea4335",
+      color: "white",
+      border: "none",
+      borderRadius: "50%",
+      width: "48px",
+      height: "48px",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      cursor: "pointer",
+      boxShadow: "0 8px 20px rgba(234, 67, 53, 0.4)",
+      transition: "all 0.3s",
+      zIndex: 100,
+    },
+  };
+
+  const handleEndCall = () => {
+    if (onLeaveCall) {
+      onLeaveCall();
+    } else {
+      window.location.href = "/test-communication";
+    }
+  };
+
+  return (
+    <div style={styles.container}>
+      {/* Header/Navbar */}
+      <header style={styles.header}>
+        <div style={styles.headerLeft}>
+          <div style={styles.logo}>
+            <img
+              src="https://res.cloudinary.com/drvllglbk/image/upload/f_png/cs_srgb/q_auto/hear_me_logo_jvyfgf.jpg"
+              alt="He@r Me Logo"
+              style={styles.logoImage}
+              onError={(e) => {
+                console.error("Logo failed to load from Cloudinary");
+                if (!e.target.src.includes("hear_me_logo_jvyfgf.jpg")) {
+                  e.target.src =
+                    "https://res.cloudinary.com/drvllglbk/image/upload/hear_me_logo_jvyfgf.jpg";
+                } else if (!e.target.src.includes("/logo.png")) {
+                  e.target.src = "/logo.png";
+                }
+              }}
+            />
+          </div>
+          {/* Room Code Badge - Top Left */}
+          {roomId && (
+            <div style={styles.roomCodeBadge}>
+              Room: {roomId}
+            </div>
+          )}
+        </div>
+        <nav ref={navRef} style={styles.nav}>
+          {activeNav === "communicate" && <div ref={indicatorRef} style={styles.navIndicator} />}
+          <a
+            ref={(el) => (navItemsRef.current.home = el)}
+            href="#home"
+            style={{
+              ...styles.navLink,
+              ...(activeNav === "home" ? styles.navLinkActive : {}),
+            }}
+            onClick={(e) => {
+              e.preventDefault();
+              handleNavClick("home");
+            }}
+          >
+            HOME
+          </a>
+          <a
+            ref={(el) => (navItemsRef.current.communicate = el)}
+            href="#communicate"
+            style={{
+              ...styles.navLink,
+              ...(activeNav === "communicate" ? styles.navLinkActive : {}),
+            }}
+            onClick={(e) => {
+              e.preventDefault();
+              handleNavClick("communicate");
+            }}
+          >
+            Communicate
+          </a>
+          <a
+            ref={(el) => (navItemsRef.current.features = el)}
+            href="#features"
+            style={{
+              ...styles.navLink,
+              ...(activeNav === "features" ? styles.navLinkActive : {}),
+            }}
+            onClick={(e) => {
+              e.preventDefault();
+              handleNavClick("features");
+            }}
+          >
+            Features
+          </a>
+          <a
+            ref={(el) => (navItemsRef.current.howitworks = el)}
+            href="#howitworks"
+            style={{
+              ...styles.navLink,
+              ...(activeNav === "howitworks" ? styles.navLinkActive : {}),
+            }}
+            onClick={(e) => {
+              e.preventDefault();
+              handleNavClick("howitworks");
+            }}
+          >
+            How it Works
+          </a>
+        </nav>
+        <button style={styles.contactButton}>Contact me</button>
+      </header>
+
+      {/* Main Content Area */}
+      <div style={styles.mainContent}>
+        {/* Left Panel - Video (70%) */}
+        <div style={styles.leftPanel}>
+          <div style={styles.videoWrapper}>
+            <DeafVideoPanel
+              participantName={participantName}
+              isMuted={isMuted}
+              isCameraOn={isCameraOn}
+              onMuteToggle={handleMuteToggle}
+              onCameraToggle={handleCameraToggle}
+              localVideoRef={localVideoRef}
+              remoteParticipants={remoteParticipants}
+              onEndCall={handleEndCall}
+            />
+            {/* Landmarks Canvas Overlay */}
+            {gestureRecognitionEnabled && (
+              <canvas
+                ref={landmarksCanvasRef}
+                style={{
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  width: "100%",
+                  height: "100%",
+                  pointerEvents: "none",
+                  zIndex: 3,
+                  objectFit: "cover",
+                }}
+              />
+            )}
+            {/* Debug Tools Overlay */}
+            {gestureRecognitionEnabled && (
+              <DebugTools
+                showLandmarks={showLandmarks}
+                onToggleLandmarks={() => setShowLandmarks(!showLandmarks)}
+                predictionLabel={
+                  wordPrediction && wordConfidence >= 0.80
+                    ? wordPrediction
+                    : gestureLabel
+                }
+                handDetected={gestureHandDetected}
+                isPredicting={isGesturePredicting}
+                error={gestureError}
+              />
+            )}
+            {/* Word confidence badge */}
+            {gestureRecognitionEnabled && wordPrediction && wordConfidence >= 0.80 && (
+              <div style={{
+                position: "absolute", top: 16, left: 16,
+                backgroundColor: "rgba(6,2,20,0.9)",
+                border: "1px solid rgba(168,85,247,0.5)",
+                borderRadius: 12, padding: "8px 16px",
+                display: "flex", alignItems: "center", gap: 10, zIndex: 60,
+              }}>
+                <span style={{ fontSize: 22, fontWeight: 800, color: "#A85CFF" }}>
+                  {wordPrediction.toUpperCase()}
+                </span>
+                <span style={{
+                  fontSize: 11, fontWeight: 700,
+                  color: wordConfidence >= 0.9 ? "#10b981" : "#fbbf24",
+                  background: wordConfidence >= 0.9 ? "rgba(16,185,129,0.15)" : "rgba(251,191,36,0.15)",
+                  padding: "2px 8px", borderRadius: 99,
+                }}>
+                  {Math.round(wordConfidence * 100)}%
+                </span>
+              </div>
+            )}
+          </div>
+          
+          {/* Status Indicator */}
+          {statusMessage && (
+            <div style={styles.statusIndicator}>
+              <div 
+                style={{
+                  ...styles.statusDot,
+                  backgroundColor: 
+                    statusMessage.includes("Error") || statusMessage.includes("Failed") ? "#ef4444" :
+                    statusMessage.includes("Connected") || statusMessage.includes("initialized") ? "#10b981" :
+                    "#fbbf24"
+                }}
+              />
+              <span style={styles.statusText}>{statusMessage}</span>
+            </div>
+          )}
+          
+          {/* Controls at Bottom */}
+          <div style={styles.modeToggleWrapper}>
+            <div style={{ display: "flex", gap: "12px", alignItems: "center", flexWrap: "wrap" }}>
+              <ModeToggle mode={mode} onModeChange={setMode} />
+              <GestureRecognitionToggle
+                enabled={gestureRecognitionEnabled}
+                onToggle={() => setGestureRecognitionEnabled(!gestureRecognitionEnabled)}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Right Panel - Features (30%) */}
+        <div style={styles.rightPanel}>
+          <DeafFeaturePanel 
+            remoteTranscription={remoteTranscription} 
+            transcriptionMessages={transcriptionMessages}
+            onClearTranscription={onClearTranscription}
+            mode={mode}
+            gestureRecognitionEnabled={gestureRecognitionEnabled}
+            onGestureRecognitionToggle={setGestureRecognitionEnabled}
+            gesturePrediction={gestureLabel}
+            gestureHandDetected={gestureHandDetected}
+            isGesturePredicting={isGesturePredicting}
+          />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default DeafCommunication;
+

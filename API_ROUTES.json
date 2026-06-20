@@ -1,0 +1,215 @@
+{
+  "baseUrl": "http://51.124.124.18",
+  "vercelProxyBase": "/api",
+  "description": "All API routes for the Hear Me project backend. Frontend calls use /api/* which proxies to http://51.124.124.18/*",
+  "routes": [
+    {
+      "endpoint": "/",
+      "method": "GET",
+      "description": "Health check - Returns API status",
+      "frontendCall": "/api",
+      "backendUrl": "http://51.124.124.18/",
+      "requestBody": null,
+      "response": {
+        "status": "ASL API running",
+        "models": {
+          "alphabet": "loaded",
+          "word": "loaded"
+        }
+      }
+    },
+    {
+      "endpoint": "/token",
+      "method": "POST",
+      "description": "Generate Azure Communication Services token for WebRTC",
+      "frontendCall": "/api/token",
+      "backendUrl": "http://51.124.124.18/token",
+      "requestBody": null,
+      "response": {
+        "token": "eyJhbGciOiJSUzI1NiIs...",
+        "userId": "8:acs:..."
+      }
+    },
+    {
+      "endpoint": "/api/azure/token",
+      "method": "POST",
+      "description": "Alternative Azure token endpoint",
+      "frontendCall": "/api/api/azure/token",
+      "backendUrl": "http://51.124.124.18/api/azure/token",
+      "requestBody": null,
+      "response": {
+        "token": "eyJhbGciOiJSUzI1NiIs...",
+        "userId": "8:acs:..."
+      }
+    },
+    {
+      "endpoint": "/my-user-id",
+      "method": "GET",
+      "description": "Get current user's Azure Communication Services user ID",
+      "frontendCall": "/api/my-user-id",
+      "backendUrl": "http://51.124.124.18/my-user-id",
+      "requestBody": null,
+      "response": {
+        "communicationUserId": "8:acs:..."
+      }
+    },
+    {
+      "endpoint": "/room",
+      "method": "POST",
+      "description": "Create a new communication room",
+      "frontendCall": "/api/room",
+      "backendUrl": "http://51.124.124.18/room",
+      "requestBody": {
+        "roomId": "ABC123"
+      },
+      "response": {
+        "roomId": "ABC123",
+        "roomGuid": "00000000-0000-0000-0000-000000000000",
+        "createdAt": "2024-01-01T00:00:00Z"
+      }
+    },
+    {
+      "endpoint": "/room/{roomId}",
+      "method": "GET",
+      "description": "Get room details by room ID",
+      "frontendCall": "/api/room/{roomId}",
+      "backendUrl": "http://51.124.124.18/room/{roomId}",
+      "requestBody": null,
+      "response": {
+        "roomId": "ABC123",
+        "roomGuid": "00000000-0000-0000-0000-000000000000",
+        "participants": []
+      }
+    },
+    {
+      "endpoint": "/room/{roomId}/add-participant",
+      "method": "POST",
+      "description": "Add a participant to an existing room",
+      "frontendCall": "/api/room/{roomId}/add-participant",
+      "backendUrl": "http://51.124.124.18/room/{roomId}/add-participant",
+      "requestBody": {
+        "userId": "8:acs:..."
+      },
+      "response": {
+        "success": true,
+        "message": "Participant added"
+      }
+    },
+    {
+      "endpoint": "/predict",
+      "method": "POST",
+      "description": "Predict ASL sign from hand landmarks (supports alphabet and word modes)",
+      "frontendCall": "/api/predict",
+      "backendUrl": "http://51.124.124.18/predict",
+      "requestBody": {
+        "mode": "alphabet",
+        "landmarks": [0.1, 0.2, 0.3, ...]
+      },
+      "response": {
+        "prediction": 0,
+        "label": "A",
+        "confidence": 0.95
+      }
+    },
+    {
+      "endpoint": "/predict/alphabet",
+      "method": "POST",
+      "description": "Predict ASL alphabet letter (legacy endpoint)",
+      "frontendCall": "/api/predict/alphabet",
+      "backendUrl": "http://51.124.124.18/predict/alphabet",
+      "requestBody": [0.1, 0.2, 0.3, ...],
+      "response": {
+        "prediction": 0,
+        "label": "A"
+      }
+    },
+    {
+      "endpoint": "/predict/word",
+      "method": "POST",
+      "description": "Predict ASL word (legacy endpoint)",
+      "frontendCall": "/api/predict/word",
+      "backendUrl": "http://51.124.124.18/predict/word",
+      "requestBody": [0.1, 0.2, 0.3, ...],
+      "response": {
+        "prediction": 0,
+        "label": "HELLO"
+      }
+    },
+    {
+      "endpoint": "/transcription/{roomId}",
+      "method": "POST",
+      "description": "Send transcription message to room (Hearing → Deaf)",
+      "frontendCall": "/api/transcription/{roomId}",
+      "backendUrl": "http://51.124.124.18/transcription/{roomId}",
+      "requestBody": {
+        "text": "Hello, how are you?",
+        "participantType": "hearing",
+        "timestamp": "2024-01-01T00:00:00Z"
+      },
+      "response": {
+        "messageId": 1,
+        "success": true
+      }
+    },
+    {
+      "endpoint": "/transcription/{roomId}",
+      "method": "GET",
+      "description": "Poll for new transcription messages (with ?since={messageId})",
+      "frontendCall": "/api/transcription/{roomId}?since={messageId}",
+      "backendUrl": "http://51.124.124.18/transcription/{roomId}?since={messageId}",
+      "requestBody": null,
+      "response": {
+        "messages": [
+          {
+            "id": 1,
+            "text": "Hello, how are you?",
+            "participantType": "hearing",
+            "timestamp": "2024-01-01T00:00:00Z"
+          }
+        ]
+      }
+    },
+    {
+      "endpoint": "/gesture/{roomId}",
+      "method": "POST",
+      "description": "Send gesture prediction to room (Deaf → Hearing)",
+      "frontendCall": "/api/gesture/{roomId}",
+      "backendUrl": "http://51.124.124.18/gesture/{roomId}",
+      "requestBody": {
+        "text": "HELLO",
+        "participantType": "deaf",
+        "timestamp": "2024-01-01T00:00:00Z"
+      },
+      "response": {
+        "messageId": 1,
+        "success": true
+      }
+    },
+    {
+      "endpoint": "/gesture/{roomId}",
+      "method": "GET",
+      "description": "Poll for new gesture messages (with ?since={messageId})",
+      "frontendCall": "/api/gesture/{roomId}?since={messageId}",
+      "backendUrl": "http://51.124.124.18/gesture/{roomId}?since={messageId}",
+      "requestBody": null,
+      "response": {
+        "messages": [
+          {
+            "id": 1,
+            "text": "HELLO",
+            "participantType": "deaf",
+            "timestamp": "2024-01-01T00:00:00Z"
+          }
+        ]
+      }
+    }
+  ],
+  "notes": [
+    "All routes are proxied through Vercel at /api/*",
+    "The SPA rewrite rule (/(.*) -> /index.html) must come AFTER all API routes",
+    "Query parameters are preserved in the proxy",
+    "CORS is handled by the backend, but proxying eliminates CORS issues",
+    "Room IDs are case-sensitive and should be URL-encoded when used in paths"
+  ]
+}
+

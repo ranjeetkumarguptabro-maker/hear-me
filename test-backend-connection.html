@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Backend Connection Test</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .test-box {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    button {
+      background: #3b82f6;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      margin: 5px;
+    }
+    button:hover {
+      background: #2563eb;
+    }
+    .result {
+      margin-top: 15px;
+      padding: 15px;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 12px;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+    .success {
+      background: #dcfce7;
+      color: #166534;
+      border: 1px solid #86efac;
+    }
+    .error {
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fca5a5;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🔧 Backend Connection Test</h1>
+  
+  <div class="test-box">
+    <h3>1. Backend URL</h3>
+    <input type="text" id="backendUrl" placeholder="https://your-backend.azurewebsites.net" />
+    <small style="color: #666;">Enter your Azure backend URL (no trailing slash)</small>
+  </div>
+
+  <div class="test-box">
+    <h3>2. Test Health Endpoint</h3>
+    <button onclick="testHealth()">Test GET /</button>
+    <div id="healthResult"></div>
+  </div>
+
+  <div class="test-box">
+    <h3>3. Test Room Creation</h3>
+    <button onclick="testRoomCreation()">Test POST /room</button>
+    <div id="roomResult"></div>
+  </div>
+
+  <div class="test-box">
+    <h3>4. Test CORS</h3>
+    <button onclick="testCORS()">Test CORS Headers</button>
+    <div id="corsResult"></div>
+  </div>
+
+  <script>
+    function getBackendUrl() {
+      const url = document.getElementById('backendUrl').value.trim();
+      if (!url) {
+        alert('Please enter your backend URL first!');
+        return null;
+      }
+      return url;
+    }
+
+    async function testHealth() {
+      const backendUrl = getBackendUrl();
+      if (!backendUrl) return;
+
+      const resultDiv = document.getElementById('healthResult');
+      resultDiv.innerHTML = '<p>Testing...</p>';
+
+      try {
+        const response = await fetch(`${backendUrl}/`, {
+          method: 'GET',
+        });
+
+        const data = await response.json();
+        
+        resultDiv.innerHTML = `
+          <div class="result success">
+            ✅ SUCCESS (${response.status})
+            
+${JSON.stringify(data, null, 2)}
+          </div>
+        `;
+      } catch (error) {
+        resultDiv.innerHTML = `
+          <div class="result error">
+            ❌ ERROR
+            
+${error.message}
+
+If you see "CORS" or "Failed to fetch", your backend's CORS configuration needs to allow requests from this domain.
+          </div>
+        `;
+      }
+    }
+
+    async function testRoomCreation() {
+      const backendUrl = getBackendUrl();
+      if (!backendUrl) return;
+
+      const resultDiv = document.getElementById('roomResult');
+      resultDiv.innerHTML = '<p>Testing...</p>';
+
+      const testRoomId = 'TEST' + Math.random().toString(36).substring(2, 8).toUpperCase();
+
+      try {
+        const response = await fetch(`${backendUrl}/room`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ roomId: testRoomId }),
+        });
+
+        const data = await response.json();
+        
+        if (response.ok) {
+          resultDiv.innerHTML = `
+            <div class="result success">
+              ✅ SUCCESS (${response.status})
+              
+Room ID: ${testRoomId}
+              
+${JSON.stringify(data, null, 2)}
+            </div>
+          `;
+        } else {
+          resultDiv.innerHTML = `
+            <div class="result error">
+              ❌ FAILED (${response.status})
+              
+${JSON.stringify(data, null, 2)}
+            </div>
+          `;
+        }
+      } catch (error) {
+        resultDiv.innerHTML = `
+          <div class="result error">
+            ❌ ERROR
+            
+${error.message}
+
+Possible causes:
+- Backend not running
+- CORS not configured
+- Network issue
+          </div>
+        `;
+      }
+    }
+
+    async function testCORS() {
+      const backendUrl = getBackendUrl();
+      if (!backendUrl) return;
+
+      const resultDiv = document.getElementById('corsResult');
+      resultDiv.innerHTML = '<p>Testing...</p>';
+
+      try {
+        const response = await fetch(`${backendUrl}/`, {
+          method: 'GET',
+        });
+
+        const corsHeaders = {
+          'Access-Control-Allow-Origin': response.headers.get('access-control-allow-origin'),
+          'Access-Control-Allow-Methods': response.headers.get('access-control-allow-methods'),
+          'Access-Control-Allow-Headers': response.headers.get('access-control-allow-headers'),
+        };
+
+        resultDiv.innerHTML = `
+          <div class="result ${corsHeaders['Access-Control-Allow-Origin'] ? 'success' : 'error'}">
+            ${corsHeaders['Access-Control-Allow-Origin'] ? '✅' : '❌'} CORS Headers:
+            
+${JSON.stringify(corsHeaders, null, 2)}
+
+${corsHeaders['Access-Control-Allow-Origin'] 
+  ? 'CORS is configured!' 
+  : 'WARNING: No CORS headers found. Backend needs CORS configuration.'}
+          </div>
+        `;
+      } catch (error) {
+        resultDiv.innerHTML = `
+          <div class="result error">
+            ❌ Could not check CORS
+            
+${error.message}
+          </div>
+        `;
+      }
+    }
+  </script>
+</body>
+</html>
+

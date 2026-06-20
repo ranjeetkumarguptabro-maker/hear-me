@@ -1,0 +1,11 @@
+fastapi
+gunicorn
+uvicorn
+python-multipart
+pydantic
+numpy
+# For inference only, not model training (use only if imported)
+tensorflow
+# Azure SDKs actually imported in code:
+azure-communication-identity
+azure-communication-rooms

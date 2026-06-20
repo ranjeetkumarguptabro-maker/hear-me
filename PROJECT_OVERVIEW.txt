@@ -1,0 +1,211 @@
+HeaMe – Project Overview
+========================
+
+Tech Stack
+----------
+Frontend:
+- React (Vite-based SPA)
+- Pure JS/JSX with inline styles (no extra UI framework), custom components for Deaf/Hearing flows
+- Azure Communication Services JavaScript SDK for WebRTC video calling
+- Microsoft Cognitive Services Speech SDK (browser) for Speech-to-Text and Text-to-Speech
+- MediaPipe Hands (browser) + custom gesture UI for ASL alphabet/word recognition
+
+Backend:
+- Python with FastAPI (ASGI)
+- In-memory relay endpoints for:
+  - Transcription relay (Hearing → Deaf)
+  - Gesture relay (Deaf → Hearing)
+- ASL prediction backend for gesture recognition (custom model exposed via REST)
+
+External Services:
+- Azure Communication Services: room-based video calling and media streams
+- Azure Speech Service:
+  - Speech-to-Text (hearing user’s microphone → text)
+  - Text-to-Speech (gesture text → spoken voice on Hearing side)
+- GIPHY (Sign language GIFs) via curated creators:
+  - @theaslgifs (primary)
+  - @signwithrobert (secondary)
+
+Current Functional State
+------------------------
+Real-time Video Communication:
+- Fully working two-role WebRTC experience using Azure Communication Services:
+  - Deaf participant
+  - Hearing participant
+- Join flow via lobby:
+  - Name input
+  - Role selection (Deaf/Hearing)
+  - Room ID creation/join
+- Deep-link ready routes (for deployment):
+  - /communication
+  - /communication/call/:roomId?type=deaf|hearing
+- Video layout similar to Google Meet / Zoom:
+  - One main video area
+  - One PiP (picture-in-picture) window
+  - When a remote joins, remote becomes main and local moves to PiP
+  - Clicking PiP swaps which video is main (both directions)
+
+Deaf Participant Features:
+- “Voice To Text”:
+  - Hearing participant’s speech is transcribed with Azure Speech-to-Text on the Hearing side
+  - Text relayed via FastAPI transcription relay to Deaf side
+  - Chat-like UI with bubbles, participant names, scrollable history, fixed card heights
+  - Toggle to enable/disable; when OFF, history is cleared and API usage stops
+
+- “Text To Virtual Sign”:
+  - Uses transcribed text (final results only) to drive Sign Language GIF playback
+  - Text cleaning: lowercase, punctuation removal, filler-word removal
+  - Mode selector:
+    - Sentence mode: first tries full sentence → then words → then alphabet fallback
+    - Word mode: word-first, then alphabet fallback for missing words
+  - GIF source priority:
+    1) @theaslgifs
+    2) @signwithrobert
+  - Queue-based playback so GIFs play sequentially
+  - Caching + rate limiting on GIF API calls to avoid wasted requests
+  - Only runs when “Text To Virtual Sign” toggle is ON (credit-safe)
+
+- Gesture Recognition:
+  - Uses MediaPipe Hands in the browser to detect hand landmarks from the Deaf user’s camera
+  - Sends landmark data to a Python/FastAPI ASL model for:
+    - Alphabet mode (single letters)
+    - Word mode (sequence-based word prediction + special “BYE BYE” using two hands)
+  - Debug controls:
+    - “Gesture Recognition” master toggle (independent of Text To Virtual Sign)
+    - “Show Landmarks” toggle to render landmark overlays
+    - Debug text overlay (Detected: <WORD/LETTER>, hand detected state, predicting state)
+  - Camera view:
+    - Uses object-fit: cover and centered video, no weird scaling
+  - When enabled:
+    - Predictions transmitted to the Hearing page via Gesture Relay backend (HTTP polling)
+
+Hearing Participant Features:
+- Video & Layout:
+  - Shares the same video panel component as Deaf side (DeafVideoPanel) with PiP/main behavior
+  - Name badges and mute/camera controls overlaid
+
+- Sign Language Assistance Card:
+  - Large gradient, animated background card with:
+    - Dark-to-neon blue linear gradient
+    - Wave-style animated gradient background
+    - Muted, looped background video (Cloudinary MP4) that fills the card
+  - Toggle to enable/disable the video and animation:
+    - ON: zoom-in, fade-in animation; video autoplay
+    - OFF: zoom-out/fade-out and video pause
+  - Background-only behavior (no interactive controls on video, controls hidden with CSS)
+
+- Speech Assistant Card:
+  - Shows incoming gesture predictions from the Deaf participant:
+    - Text bubbles (e.g., “Deaf participant signed: HELLO”)
+    - Scrollable list with fixed height
+  - Toggle to enable/disable:
+    - When OFF: UI shows instructions but still silently receives predictions
+  - Azure Text-to-Speech integration:
+    - When Sign Language Assistance toggle is ON:
+      - New gesture predictions are spoken aloud via Azure TTS (en-US-JennyNeural)
+      - Uses last-spoken tracking to avoid repeating the same sentence
+      - Stops immediately when toggle is switched OFF
+
+Transcription Relay (Hearing → Deaf)
+------------------------------------
+- Implemented via FastAPI in-memory store:
+  - POST /transcription/{room_id}
+    - Receives messages:
+      - text
+      - type (partial | final)
+      - timestamp
+      - participantName
+  - GET /transcription/{room_id}?since=<id>
+    - Returns only messages newer than a given ID
+- Frontend transcription flow:
+  - Hearing side:
+    - Uses Azure Speech SDK with fromDefaultMicrophoneInput()
+    - Partial and final results streamed into local UI and sent to relay
+  - Deaf side:
+    - Polls backend for new messages
+    - Renders a chat-like history with participant names
+
+Gesture Relay (Deaf → Hearing)
+------------------------------
+- Similar pattern to transcription relay, but for gesture predictions:
+  - POST /gesture/{room_id}
+    - text, timestamp, participantType, participantName
+  - GET /gesture/{room_id}?since=<id>
+    - Returns new gesture messages
+- Deaf page:
+  - When Gesture Recognition is ON:
+    - Sends predictions using gestureRelay
+    - Only final, de-duplicated predictions (throttled)
+- Hearing page:
+  - Uses gestureRelay in “hearing” mode to poll and update Speech Assistant card
+
+Routing & Navigation
+--------------------
+- Main app entry: `App.jsx`
+  - Legacy test routes:
+    - /sign-gif-test
+    - /test-communication-azure
+    - /test-communication (old communication test)
+  - Production communication routes:
+    - /communication → lobby (CommunicationLobby)
+    - /communication/call/:roomId → in-call page (CommunicationCall) with type=deaf|hearing
+  - Home page:
+    - “Communicate / Get Started” now routes directly to /communication
+
+Credit-Safe API Usage
+---------------------
+- Global principle: **feature toggles act as hard power switches, not soft mutes**.
+- When toggles are OFF:
+  - Gesture Recognition:
+    - MediaPipe Hands, camera processing, ASL model calls, and gestureRelay all stop and clean up.
+  - Voice To Text:
+    - Azure SpeechRecognizer is stopped and disposed; no mic stream or Azure calls.
+  - Text To Virtual Sign:
+    - No GIPHY API calls; queues and timeouts cleared.
+  - Sign Language Assistance (TTS):
+    - Azure TTS synthesizer is stopped and closed; no new synthesis or audio playback.
+- Cleanup on unmount:
+  - All major services (transcription, gesture relay, TTS) are stopped and cleaned to prevent hidden usage.
+
+Current Achievements
+--------------------
+- End-to-end accessible communication between Deaf and Hearing users:
+  - Bi-directional mapping:
+    - Hearing speech → text → sign language GIFs for Deaf user
+    - Deaf gestures → text predictions → displayed + optionally spoken for Hearing user
+- Stable room-based video calling using Azure Communication Services.
+- Role-based views:
+  - Deaf view optimized for:
+    - Sign GIFs
+    - Incoming voice transcription
+    - Gesture recognition + debugging
+  - Hearing view optimized for:
+    - Rich Sign Language Assistance visuals
+    - Speech Assistant for ASL predictions
+    - Text-to-Speech feedback
+- Modern, card-based UI that:
+  - Keeps layout stable (fixed card heights, scrollable interiors)
+  - Uses gradients, animations, and clean labels
+  - Shows participant names consistently across video and text views.
+
+High-Level “How It Works”
+-------------------------
+1. A user opens `/communication`, enters a name, selects Deaf or Hearing, and joins or creates a room.
+2. Azure Communication Services connects both participants in a video call.
+3. If the Hearing user enables Voice To Text:
+   - Their microphone audio goes to Azure Speech.
+   - Final text is sent via the transcription relay.
+   - Deaf user sees it in a chat UI and, if enabled, drives Sign GIF playback.
+4. If the Deaf user enables Gesture Recognition:
+   - MediaPipe extracts landmarks from the camera.
+   - The ASL backend predicts letters/words.
+   - Predictions are sent via the gesture relay.
+   - Hearing user sees them in Speech Assistant and, if enabled, hears them via Azure TTS.
+5. Both sides can toggle features independently, controlling cost and UX.
+
+This is the current state of the HeaMe project: a production-ready, accessibility-focused, bi-directional communication platform built on React, FastAPI, Azure Communication Services, Azure Speech, MediaPipe, and custom ASL AI, with careful credit-safe API usage and a modern UI.
+
+
+
+
+

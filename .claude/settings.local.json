@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 -c ' *)",
+      "Bash(python asl_training/step1_download_wlasl.py --dry-run)",
+      "Bash(python3 asl_training/step1_download_wlasl.py --dry-run)",
+      "Bash(python3 *)",
+      "Bash(awk '{print $1, $2, $11, $12}')",
+      "Bash(node_modules/.bin/vite build *)",
+      "Bash(tee -a asl_training/pipeline.log)",
+      "Bash(npm ls *)",
+      "Bash(curl -s http://localhost:8000/health)",
+      "Bash(curl *)",
+      "Bash(echo \"PID: $!\")",
+      "Bash(echo \"Training PID: $!\")",
+      "Bash(pkill -f \"python3 main.py\")",
+      "Bash(pkill -f \"uvicorn\")",
+      "Bash(npm run *)",
+      "Bash(lsof -ti:8000)",
+      "Bash(xargs kill -9)",
+      "Bash(echo \"Download PID: $!\")"
+    ]
+  }
+}

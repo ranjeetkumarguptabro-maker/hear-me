@@ -1,0 +1,271 @@
+.test-azure-container {
+  min-height: 100vh;
+  background: hsl(220deg 11.2% 20.77%);
+  color: #ffffff;
+  padding: 20px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.test-azure-header {
+  text-align: center;
+  margin-bottom: 40px;
+  padding: 20px;
+  background: linear-gradient(145deg, hsl(220deg 20.23% 26.71% / 90%), hsl(220 15% 10% / 0.9));
+  border-radius: 12px;
+}
+
+.test-azure-header h1 {
+  margin: 0 0 8px 0;
+  font-size: 32px;
+  font-weight: 600;
+}
+
+.test-azure-subtitle {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 14px;
+}
+
+.test-azure-content {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.test-azure-section {
+  background: linear-gradient(145deg, hsl(220deg 20.23% 26.71% / 90%), hsl(220 15% 10% / 0.9));
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.test-azure-section h2 {
+  margin: 0 0 20px 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: #FFD700;
+}
+
+.test-azure-room-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.test-azure-input-group {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.test-azure-input-group label {
+  font-weight: 500;
+  min-width: 80px;
+}
+
+.test-azure-input-group input {
+  flex: 1;
+  padding: 10px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  font-size: 14px;
+}
+
+.test-azure-input-group input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.test-azure-input-group input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.test-azure-azure-room-id {
+  margin-top: 8px;
+  padding: 8px 12px;
+  background: rgba(255, 215, 0, 0.1);
+  border: 1px solid rgba(255, 215, 0, 0.3);
+  border-radius: 6px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.test-azure-azure-room-id code {
+  font-family: 'Courier New', monospace;
+  color: #FFD700;
+  font-size: 11px;
+  word-break: break-all;
+}
+
+.test-azure-button-group {
+  display: flex;
+  gap: 12px;
+}
+
+.test-azure-btn-primary,
+.test-azure-btn-secondary,
+.test-azure-btn-danger,
+.test-azure-btn-control {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.test-azure-btn-primary {
+  background: #FFD700;
+  color: #000000;
+}
+
+.test-azure-btn-primary:hover:not(:disabled) {
+  background: #ffed4e;
+}
+
+.test-azure-btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.test-azure-btn-secondary {
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+}
+
+.test-azure-btn-secondary:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.test-azure-btn-danger {
+  background: #dc3545;
+  color: #ffffff;
+}
+
+.test-azure-btn-danger:hover:not(:disabled) {
+  background: #c82333;
+}
+
+.test-azure-btn-control {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.test-azure-btn-control:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.test-azure-btn-control:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.test-azure-error {
+  margin-top: 12px;
+  padding: 12px;
+  background: rgba(220, 53, 69, 0.2);
+  border: 1px solid #dc3545;
+  border-radius: 8px;
+  color: #ff6b7a;
+  font-size: 14px;
+}
+
+.test-azure-status {
+  margin-top: 12px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 14px;
+}
+
+.test-azure-video-area {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.test-azure-local-video-container,
+.test-azure-remote-video-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.test-azure-local-video-container h3,
+.test-azure-remote-video-container h3 {
+  margin: 0 0 12px 0;
+  font-size: 16px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.test-azure-video-container {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+}
+
+.test-azure-video-container video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.test-azure-video-placeholder {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: rgba(255, 255, 255, 0.5);
+  text-align: center;
+  font-size: 14px;
+}
+
+.test-azure-remote-video-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+}
+
+.remote-participant-video {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+}
+
+.remote-participant-video video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.test-azure-call-controls {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+  .test-azure-video-area {
+    grid-template-columns: 1fr;
+  }
+  
+  .test-azure-input-group {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .test-azure-input-group label {
+    min-width: auto;
+  }
+}
+

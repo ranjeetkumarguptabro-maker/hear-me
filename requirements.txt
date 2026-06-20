@@ -1,0 +1,4 @@
+# This file tells Azure this is a Python project
+# The actual backend dependencies are in backend/requirements.txt
+# Azure will use PROJECT=backend setting to find the real requirements.txt
+

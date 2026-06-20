@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASL API Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #1a1a2e;
+            color: #fff;
+        }
+        .test-section {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #764ba2;
+        }
+        .result {
+            background: rgba(0,0,0,0.3);
+            padding: 15px;
+            margin-top: 10px;
+            border-radius: 5px;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+        .success { border-left: 4px solid #38ef7d; }
+        .error { border-left: 4px solid #f45c43; }
+    </style>
+</head>
+<body>
+    <h1>🧪 ASL API Simple Test</h1>
+    
+    <div class="test-section">
+        <h2>1. Test API Status</h2>
+        <button onclick="testStatus()">Test Status</button>
+        <div id="statusResult" class="result" style="display:none;"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>2. Test Alphabet Prediction</h2>
+        <p>Uses dummy landmarks (63 values, all 0.5)</p>
+        <button onclick="testAlphabet()">Test Alphabet</button>
+        <div id="alphabetResult" class="result" style="display:none;"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>3. Test Word Prediction</h2>
+        <p>Uses dummy landmarks (1890 values, all 0.5)</p>
+        <button onclick="testWord()">Test Word</button>
+        <div id="wordResult" class="result" style="display:none;"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>4. Run All Tests</h2>
+        <button onclick="runAllTests()" style="background: #11998e;">Run All Tests</button>
+    </div>
+
+    <script>
+        const API_URL = "http://localhost:8000";
+
+        async function testStatus() {
+            const resultDiv = document.getElementById("statusResult");
+            resultDiv.style.display = "block";
+            resultDiv.className = "result";
+            resultDiv.textContent = "Testing...";
+
+            try {
+                const response = await fetch(API_URL);
+                const data = await response.json();
+                resultDiv.className = "result success";
+                resultDiv.textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                resultDiv.className = "result error";
+                resultDiv.textContent = `Error: ${error.message}\n\nMake sure the backend is running:\ncd backend && python simple_test_api.py`;
+            }
+        }
+
+        async function testAlphabet() {
+            const resultDiv = document.getElementById("alphabetResult");
+            resultDiv.style.display = "block";
+            resultDiv.className = "result";
+            resultDiv.textContent = "Testing...";
+
+            // Create dummy landmarks (63 values)
+            const dummyLandmarks = new Array(63).fill(0.5);
+
+            try {
+                const response = await fetch(`${API_URL}/predict/alphabet`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(dummyLandmarks),
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${await response.text()}`);
+                }
+
+                const data = await response.json();
+                resultDiv.className = "result success";
+                resultDiv.textContent = `Prediction: ${data.label}\nClass Index: ${data.prediction}\nConfidence: ${(data.confidence * 100).toFixed(2)}%\n\nFull Response:\n${JSON.stringify(data, null, 2)}`;
+            } catch (error) {
+                resultDiv.className = "result error";
+                resultDiv.textContent = `Error: ${error.message}`;
+            }
+        }
+
+        async function testWord() {
+            const resultDiv = document.getElementById("wordResult");
+            resultDiv.style.display = "block";
+            resultDiv.className = "result";
+            resultDiv.textContent = "Testing...";
+
+            // Create dummy landmarks (1890 values: 30 frames × 63)
+            const dummyLandmarks = new Array(1890).fill(0.5);
+
+            try {
+                const response = await fetch(`${API_URL}/predict/word`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(dummyLandmarks),
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${await response.text()}`);
+                }
+
+                const data = await response.json();
+                resultDiv.className = "result success";
+                resultDiv.textContent = `Prediction: ${data.label}\nClass Index: ${data.prediction}\nConfidence: ${(data.confidence * 100).toFixed(2)}%\n\nFull Response:\n${JSON.stringify(data, null, 2)}`;
+            } catch (error) {
+                resultDiv.className = "result error";
+                resultDiv.textContent = `Error: ${error.message}`;
+            }
+        }
+
+        async function runAllTests() {
+            console.log("Running all tests...");
+            await testStatus();
+            await new Promise(r => setTimeout(r, 500));
+            await testAlphabet();
+            await new Promise(r => setTimeout(r, 500));
+            await testWord();
+        }
+    </script>
+</body>
+</html>
+

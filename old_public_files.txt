@@ -1,0 +1,49 @@
+public/.DS_Store
+public/avatar1.png
+public/avatar2.png
+public/avatar3.png
+public/communication page /.DS_Store
+public/communication page /Content-1.png
+public/communication page /Content.png
+public/communication page /Deaf Section.png
+public/communication page /Frame 1.png
+public/communication page /Frame 29.png
+public/communication page /Frame 30.png
+public/communication page /Frame 34.png
+public/communication page /Frame 35.png
+public/communication page /Frame 36.png
+public/communication page /Frame 37.png
+public/communication page /Frame 38.png
+public/communication page /Hearing Section.png
+public/communication page /Live.png
+public/communication page /Player.png
+public/communication page /Shape.png
+public/communication page /This section displays the upcoming translation of your hand signs...png
+public/communication page /This section displays the upcoming translation of your video/recording.png
+public/communication page /Widgets.png
+public/communication page /icon-1.png
+public/communication page /icon-2.png
+public/communication page /icon.png
+public/communication page /image 13.png
+public/cta-circle.png
+public/feat-admin.png
+public/feat-databars.png
+public/feat-datareporting.png
+public/feat-fullsupport.png
+public/feat-itsupport.png
+public/feat-marketing.png
+public/flag.png
+public/hero-device.png
+public/icon-arrow-dark.png
+public/icon-arrow-right.png
+public/icon-arrow.png
+public/icon-circle.png
+public/icon-ear.png
+public/icon-home.png
+public/icon-mic.png
+public/icon-music.png
+public/icon-wave.png
+public/logo.png
+public/pill-bg.png
+public/tablet-mockup.png
+public/test_asl_api.html
